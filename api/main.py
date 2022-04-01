@@ -7,9 +7,11 @@ para resolução de problemas de otimização.
 from typing import Union
 from fastapi import FastAPI
 from http import HTTPStatus
-from api.schemas import (
-    HealthCheckResponse, OptimizationInput, NotFoundError, OptimizationOutput
-)
+from api.schemas import HealthCheckResponse
+from api.schemas import OptimizationInput 
+from api.schemas import NotFoundError 
+from api.schemas import OptimizationOutput
+
 from api.optimization import problem
 
 
