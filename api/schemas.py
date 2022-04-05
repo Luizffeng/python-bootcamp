@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 from pydantic import BaseModel, Field
 from api.models.railroad import Railroad
 from api.models.optimization_results import OptimizationResults
@@ -54,8 +54,7 @@ class OptimizationInput(BaseModel):
 
 class OptimizationOutput(BaseModel):
     code: int
-    message: str
-    results: OptimizationResults = None
+    results: Any
 
 
 class NotFoundError(BaseModel):

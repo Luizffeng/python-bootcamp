@@ -143,7 +143,57 @@ def optimize_allocation(
         f" of {limits[1][0]}"
     )
 
-    return models, allocation
+    modelsList = models.tolist()
+    modelsReordered = []
+    for i in range(len(modelsList)):
+        modelsReordered.append([modelsList[0][i], modelsList[1][i]])
+
+    return modelsReordered, allocation.reshape(-1).tolist()
+
+
+def result(
+    optimization_input: OptimizationInput
+):
+    """
+    Build and optimize allocation problem.
+
+    Args:
+        optimization_input (OptimizationInput): Allocation problem input data.
+    """
+    # parameters
+    wagons = optimization_input.railroad.train_models_wagons()
+    locomotives = optimization_input.railroad.train_models_locomotives()
+    total_wagons = optimization_input.railroad.total_wagons()
+    total_locomotives = optimization_input.railroad.total_locomotives()
+
+    # build optimization problem
+    problem = build_allocation_problem(
+        wagons=wagons,
+        locomotives=locomotives,
+        total_wagons=total_wagons,
+        total_locomotives=total_locomotives
+    )
+
+    models, allocation = optimize_allocation(problem=problem)
+
+    output_wagons = []
+
+    for i in range(len(models)):
+        output_wagons.append(allocation[i])
+
+    
+
+
+    return {
+        "Resultado": output_wagons
+    }
+
+    # TODO: Salvar os resultados:
+    # models e allocation na estrutura do OptimizationOutput.
+    # Esse dados de saída tem que ficar disponível para a
+    # rota: '/results/{code}'
+    # Faça as modificações que forem necessárias.
+
 
 
 def solve(
@@ -171,8 +221,23 @@ def solve(
 
     models, allocation = optimize_allocation(problem=problem)
 
+    output_wagons = []
+
+    for i in range(len(models)):
+        (wagons, locomotives) = models[i]
+        output_wagons.append({"message": f"Para {wagons} vagões e {locomotives} locomotivas: {allocation[i]}"})
+
+    
+    
+
+    return output_wagons
+
     # TODO: Salvar os resultados:
     # models e allocation na estrutura do OptimizationOutput.
     # Esse dados de saída tem que ficar disponível para a
     # rota: '/results/{code}'
     # Faça as modificações que forem necessárias.
+
+
+
+

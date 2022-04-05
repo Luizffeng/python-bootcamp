@@ -14,13 +14,26 @@ from api.schemas import OptimizationOutput
 
 from api.optimization import problem
 
+from fastapi import Depends
+from api.database import Base, engine, SessionLocal
+
+# Create the database
+Base.metadata.create_all(engine)
+
+def get_session():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 api = FastAPI(
     title='ENACOM Python bootcamp API',
     version='0.1.1',
     description=(
         'API (Interface de programação de aplicações)'
-        'para resolução de problemas de otimização.\n'
+        'para resolução de problemas de otimização.'
     ),
 )
 
@@ -60,16 +73,13 @@ def healthcheck():
         }
     }
 )
-def post_results_code(code: int) -> Union[OptimizationOutput, NotFoundError]:
+def post_results_code(code: int, optimization_input: OptimizationInput) -> Union[OptimizationOutput, NotFoundError]:
+    response = problem.solve(
+        optimization_input=optimization_input
+    )
     response = OptimizationOutput(
         code=code,
-        message=(
-            f"Resultado do problema {code} ainda não está sendo salvo."
-            "Isso é parte do desafio!"
-        ),
-        # TODO: Resultados (models e allocation) do problema de otimização
-        # precisam ser preenchido nesse parâmetro
-        results=None
+        results=response
     )
 
     return response
@@ -91,10 +101,9 @@ def post_solve(
     """
     Resolver problema de otimização
     """
-    problem.solve(
+    response = problem.result(
         optimization_input=optimization_input
     )
-
-    response = {"message": "Problema recebido."}
+    
 
     return response
